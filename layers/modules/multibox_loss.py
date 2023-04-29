@@ -70,8 +70,8 @@ class MultiBoxLoss(nn.Module):
             print(targets[1][(1,0)])
             print(targets[1][3,:].data)
 
-            truths = targets[1][idx, :].data
-            labels = targets[0][idx].data
+            truths = targets[idx][:, :-1].data
+            labels = targets[idx][:, -1].data
             defaults = priors.data
             match(self.threshold, truths, defaults, self.variance, labels,
                   loc_t, conf_t, idx)
