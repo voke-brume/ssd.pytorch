@@ -14,7 +14,8 @@ import torch.nn.init as init
 import torch.utils.data as data
 import numpy as np
 import argparse
-
+from utils import PyTorchSparkDataset
+from torchvision import transforms
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -23,7 +24,7 @@ def str2bool(v):
 parser = argparse.ArgumentParser(
     description='Single Shot MultiBox Detector Training With Pytorch')
 train_set = parser.add_mutually_exclusive_group()
-parser.add_argument('--dataset', default='VOC', choices=['VOC', 'COCO'],
+parser.add_argument('--dataset', default='SPARK', choices=['VOC', 'COCO','SPARK'],
                     type=str, help='VOC or COCO')
 parser.add_argument('--dataset_root', default=VOC_ROOT,
                     help='Dataset root directory path')
@@ -69,25 +70,32 @@ if not os.path.exists(args.save_folder):
 
 
 def train():
-    if args.dataset == 'COCO':
-        if args.dataset_root == VOC_ROOT:
-            if not os.path.exists(COCO_ROOT):
-                parser.error('Must specify dataset_root if specifying dataset')
-            print("WARNING: Using default COCO dataset_root because " +
-                  "--dataset_root was not specified.")
-            args.dataset_root = COCO_ROOT
-        cfg = coco
-        dataset = COCODetection(root=args.dataset_root,
-                                transform=SSDAugmentation(cfg['min_dim'],
-                                                          MEANS))
-    elif args.dataset == 'VOC':
-        if args.dataset_root == COCO_ROOT:
-            parser.error('Must specify dataset if specifying dataset_root')
-        cfg = voc
-        dataset = VOCDetection(root=args.dataset_root,
-                               transform=SSDAugmentation(cfg['min_dim'],
-                                                         MEANS))
-
+    # if args.dataset == 'COCO':
+    #     if args.dataset_root == VOC_ROOT:
+    #         if not os.path.exists(COCO_ROOT):
+    #             parser.error('Must specify dataset_root if specifying dataset')
+    #         print("WARNING: Using default COCO dataset_root because " +
+    #               "--dataset_root was not specified.")
+    #         args.dataset_root = COCO_ROOT
+    #     cfg = coco
+    #     dataset = COCODetection(root=args.dataset_root,
+    #                             transform=SSDAugmentation(cfg['min_dim'],
+    #                                                       MEANS))
+    # elif args.dataset == 'VOC':
+    #     if args.dataset_root == COCO_ROOT:
+    #         parser.error('Must specify dataset if specifying dataset_root')
+    #     cfg = voc
+    #     dataset = VOCDetection(root=args.dataset_root,
+    #                            transform=SSDAugmentation(cfg['min_dim'],
+    #                                                      MEANS))
+    resize = transforms.Resize(size=(300,
+            300))
+    trainTransforms = transforms.Compose([transforms.ToPILImage(),resize,
+            transforms.ToTensor()])
+    # CHANGED TO SPARK DATASET
+    class_map=[{'proba_2': 0,'cheops': 1,'debris':2,'double_star':3,'earth_observation_sat_1':4,'lisa_pathfinder':5,'proba_3_csc':6,'proba_3_ocs':7,'smart_1':8,'soho':9,'xmm_newton':10}]
+    dataset=PyTorchSparkDataset(class_map,'train',"E:\\CPE 620 final\\data\\",transform=trainTransforms)
+    cfg=spark
     if args.visdom:
         import visdom
         viz = visdom.Visdom()
@@ -141,11 +149,16 @@ def train():
         vis_legend = ['Loc Loss', 'Conf Loss', 'Total Loss']
         iter_plot = create_vis_plot('Iteration', 'Loss', vis_title, vis_legend)
         epoch_plot = create_vis_plot('Epoch', 'Loss', vis_title, vis_legend)
+        # CHANGED TO FIT OUR DATASET
+    
 
-    data_loader = data.DataLoader(dataset, args.batch_size,
-                                  num_workers=args.num_workers,
-                                  shuffle=True, collate_fn=detection_collate,
+    data_loader = data.DataLoader(dataset, batch_size=4,
+                                  num_workers=args.num_workers, shuffle=True,collate_fn=detection_collate,
                                   pin_memory=True)
+    # data_loader = data.DataLoader(dataset, args.batch_size,
+    #                               num_workers=args.num_workers,
+    #                               shuffle=True, collate_fn=detection_collate,
+    #                               pin_memory=True)
     # create batch iterator
     batch_iterator = iter(data_loader)
     for iteration in range(args.start_iter, cfg['max_iter']):
@@ -162,7 +175,7 @@ def train():
             adjust_learning_rate(optimizer, args.gamma, step_index)
 
         # load train data
-        images, targets = next(batch_iterator)
+        images, classes,targets = next(batch_iterator)
 
         if args.cuda:
             images = Variable(images.cuda())
