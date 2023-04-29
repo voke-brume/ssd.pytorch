@@ -132,9 +132,9 @@ if has_pytorch:
                     bbox[i]=int(bbox[i]*(300/1024))
 
 
-                return torch_image, self.class_map[0][sat_name] , torch.tensor(bbox)
+                return torch_image, (self.class_map[0][sat_name] , torch.tensor(bbox))
 
-            return torch_image, torch.tensor(self.class_map[sat_name])
+            return image_name, torch.tensor(self.class_map[sat_name])
 else:
     class PyTorchSparkDataset:
         def __init__(self, *args, **kwargs):

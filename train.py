@@ -14,7 +14,7 @@ import torch.nn.init as init
 import torch.utils.data as data
 import numpy as np
 import argparse
-from utils import PyTorchSparkDataset
+from util import PyTorchSparkDataset
 from torchvision import transforms
 
 def str2bool(v):
@@ -138,14 +138,14 @@ def train():
     print('Loading the dataset...')
 
     epoch_size = len(dataset) // args.batch_size
-    print('Training SSD on:', dataset.name)
+    print('Training SSD on: SPARK Dataset')
     print('Using the specified args:')
     print(args)
 
     step_index = 0
 
     if args.visdom:
-        vis_title = 'SSD.PyTorch on ' + dataset.name
+        vis_title = 'SSD.PyTorch on SPARK' 
         vis_legend = ['Loc Loss', 'Conf Loss', 'Total Loss']
         iter_plot = create_vis_plot('Iteration', 'Loss', vis_title, vis_legend)
         epoch_plot = create_vis_plot('Epoch', 'Loss', vis_title, vis_legend)
@@ -153,8 +153,8 @@ def train():
     
 
     data_loader = data.DataLoader(dataset, batch_size=4,
-                                  num_workers=args.num_workers, shuffle=True,collate_fn=detection_collate,
-                                  pin_memory=True)
+                                   shuffle=True,
+                                  generator=torch.Generator(device='cuda'))
     # data_loader = data.DataLoader(dataset, args.batch_size,
     #                               num_workers=args.num_workers,
     #                               shuffle=True, collate_fn=detection_collate,
@@ -175,7 +175,11 @@ def train():
             adjust_learning_rate(optimizer, args.gamma, step_index)
 
         # load train data
-        images, classes,targets = next(batch_iterator)
+        images,targets = next(batch_iterator)
+        print(targets)
+
+        # print(targets[:][:].data)
+        # targets=targets[1:4][:]
 
         if args.cuda:
             images = Variable(images.cuda())
