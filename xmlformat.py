@@ -15,16 +15,20 @@ from xml.dom import minidom
 from util import process_labels,PyTorchSparkDataset
 from data import *
 
-def _pretty_print(current, parent=None, index=-1, depth=0):
-    for i, node in enumerate(current):
-        _pretty_print(node, current, i, depth + 1)
-    if parent is not None:
-        if index == 0:
-            parent.text = '\n' + ('\t' * depth)
-        else:
-            parent[index - 1].tail = '\n' + ('\t' * depth)
-        if index == len(parent) - 1:
-            current.tail = '\n' + ('\t' * (depth - 1))
+
+
+"""
+IMPORTANT:  Change lines with file paths to your file path
+            Resize to your own desired size and change line 43 and 44 to match this size
+            In util.py change line 132, replace 300 with the number you want the size to be
+            Otherwise if your code doesnt require normalized sizes, erase "300/1024"
+            Make sure the xml file matches the structure of the example file labeled
+            "2007_000027_EXAMPLE.xml" structure
+            If using smaller subset of training samples, replace lines 37,38 and 39 with 
+            size of your smaller dataset
+"""
+
+
 resize = transforms.Resize(size=(300,
             300))
 trainTransforms = transforms.Compose([transforms.ToPILImage(),resize,
@@ -35,7 +39,6 @@ labs=[0]*66000
 imgs=[0]*66000
 for i in range(66000):
     torch_image,bbox,labels=dataset[i]
-
 
 
     root = ET.Element('annotation')
@@ -73,22 +76,27 @@ for i in range(66000):
         f.write(xmlstr[1:])
     # tree.write("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\Annotations\\"+str(txt))
     print(i)
-    labs[i]=labels
-    imgs[i]=str(os.path.splitext(os.path.basename(torch_image))[0][:])
 
-for key in class_map[0]:
-    print(key)
-    name=str(key)+".txt"
-    folderName=os.path.join("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\ImageSets\\Main\\",name)
+
+    # labs[i]=labels
+    # imgs[i]=str(os.path.splitext(os.path.basename(torch_image))[0][:])
+# I will put the outputs of this in the github, it takes a while to run
+
+# for key in class_map[0]:
+#     print(class_map[0][key])
+#     name=str(key)+".txt"
+#     folderName=os.path.join("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\ImageSets\\Main\\",name)
     
-    for i in range(len(labs)):
-        print(i)
-        print("%s %s"%(str(imgs[i]), str(-1)))
-        if(labs[i]==key):
-            with open(folderName,'a+') as f:
-                f.write("%s %s"%(str(imgs[i]), str(1)))
+#     for i in range(len(labs)):
+#         print(labs[i])
+#         print(class_map[0][key])
+#         print(i)
+#         print("%s %s"%(str(imgs[i]), str(-1)))
+#         if(labs[i]==class_map[0][key]):
+#             with open(folderName,'a+') as f:
+#                 f.write("%s %s\n"%(str(imgs[i]), str(1)))
 
-        else:
-            with open(folderName,'a+') as f:
+#         else:
+#             with open(folderName,'a+') as f:
 
-                f.write("%s %s"%(str(imgs[i]), str(-1)))
+#                 f.write("%s %s\n"%(str(imgs[i]), str(-1)))

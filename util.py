@@ -115,14 +115,14 @@ if has_pytorch:
             img_name = self.labels.iloc[idx]['filename']
             image_name = f'{self.root_dir}_1/{img_name}'
             
-            image = io.imread(image_name)
+            # image = io.imread(image_name)
 
 
-            if self.transform is not None:
-                torch_image = self.transform(image)
+            # if self.transform is not None:
+            #     torch_image = self.transform(image)
             
-            else:
-                torch_image = torch.from_numpy(image).permute(2,1,0)
+            # else:
+            #     torch_image = torch.from_numpy(image).permute(2,1,0)
                 
             if self.detection:
                 
