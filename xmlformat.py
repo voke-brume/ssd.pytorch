@@ -31,6 +31,8 @@ trainTransforms = transforms.Compose([transforms.ToPILImage(),resize,
             transforms.ToTensor()])
 class_map=[{'proba_2': 0,'cheops': 1,'debris':2,'double_star':3,'earth_observation_sat_1':4,'lisa_pathfinder':5,'proba_3_csc':6,'proba_3_ocs':7,'smart_1':8,'soho':9,'xmm_newton':10}]
 dataset=PyTorchSparkDataset(class_map,'train',"E:\\CPE 620 final\\data\\",transform=trainTransforms)
+labs=[0]*66000
+imgs=[0]*66000
 for i in range(66000):
     torch_image,bbox,labels=dataset[i]
 
@@ -38,7 +40,7 @@ for i in range(66000):
 
     root = ET.Element('annotation')
     ET.SubElement(root, 'folder').text = 'E:\\CPE 620 final\\data\\train_1' # set correct folder name
-    ET.SubElement(root, 'filename').text = str(os.path.splitext(os.path.basename(torch_image))[0][:])
+    ET.SubElement(root, 'filename').text = str(os.path.splitext(os.path.basename(torch_image))[0][:]+'.png')
 
     size = ET.SubElement(root, 'size')
     ET.SubElement(size, 'width').text = str(300)
@@ -66,7 +68,27 @@ for i in range(66000):
     txt=os.path.splitext(os.path.basename(torch_image))[0][:]    
     txt=txt+'.xml'
     print(txt)
-    xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent = "   ")
+    xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent = "\t")
     with open(os.path.join("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\Annotations\\",str(txt)), "w") as f:
-        f.write(xmlstr)
+        f.write(xmlstr[1:])
     # tree.write("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\Annotations\\"+str(txt))
+    print(i)
+    labs[i]=labels
+    imgs[i]=str(os.path.splitext(os.path.basename(torch_image))[0][:])
+
+for key in class_map[0]:
+    print(key)
+    name=str(key)+".txt"
+    folderName=os.path.join("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\ImageSets\\Main\\",name)
+    
+    for i in range(len(labs)):
+        print(i)
+        print("%s %s"%(str(imgs[i]), str(-1)))
+        if(labs[i]==key):
+            with open(folderName,'a+') as f:
+                f.write("%s %s"%(str(imgs[i]), str(1)))
+
+        else:
+            with open(folderName,'a+') as f:
+
+                f.write("%s %s"%(str(imgs[i]), str(-1)))

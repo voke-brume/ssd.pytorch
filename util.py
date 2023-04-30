@@ -129,7 +129,7 @@ if has_pytorch:
                 bbox = self.labels.iloc[idx]['bbox']
                 bbox = literal_eval(bbox)
                 for i in range(4):
-                    bbox[i]=bbox[i]/1024
+                    bbox[i]=bbox[i]*300/1024
 
 
                 return image_name, bbox,self.class_map[0][sat_name]
