@@ -129,10 +129,10 @@ if has_pytorch:
                 bbox = self.labels.iloc[idx]['bbox']
                 bbox = literal_eval(bbox)
                 for i in range(4):
-                    bbox[i]=int(bbox[i]*(300/1024))
+                    bbox[i]=bbox[i]/1024
 
 
-                return torch_image, [(self.class_map[0][sat_name] , torch.tensor(bbox))]
+                return image_name, bbox,self.class_map[0][sat_name]
 
             return image_name, torch.tensor(self.class_map[sat_name])
 else:
