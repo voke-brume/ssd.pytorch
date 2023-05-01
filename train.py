@@ -26,7 +26,7 @@ parser = argparse.ArgumentParser(
 train_set = parser.add_mutually_exclusive_group()
 parser.add_argument('--dataset', default='VOC', choices=['VOC', 'COCO','SPARK'],
                     type=str, help='VOC or COCO')
-parser.add_argument('--dataset_root', default=VOC_ROOT,
+parser.add_argument('--dataset_root', default="VOCdevkit/SPARK",
                     help='Dataset root directory path')
 parser.add_argument('--basenet', default='vgg16_reducedfc.pth',
                     help='Pretrained base model')
@@ -90,7 +90,7 @@ def train():
                                                          MEANS))
     # resize = transforms.Resize(size=(300,
     #         300))
-    # trainTransforms = transforms.Compose([transforms.ToPILImage(),resize,
+    # trainTransforms = transrootpathforms.Compose([transforms.ToPILImage(),resize,
     #         transforms.ToTensor()])
     # # CHANGED TO SPARK DATASET
     # class_map=[{'proba_2': 0,'cheops': 1,'debris':2,'double_star':3,'earth_observation_sat_1':4,'lisa_pathfinder':5,'proba_3_csc':6,'proba_3_ocs':7,'smart_1':8,'soho':9,'xmm_newton':10}]
@@ -156,9 +156,9 @@ def train():
     #                                shuffle=True,
     #                               generator=torch.Generator(device='cuda'))
     data_loader = data.DataLoader(dataset, args.batch_size,
-                                  num_workers=args.num_workers,
+                                  num_workers=0,
                                   shuffle=True, collate_fn=detection_collate,
-                                  pin_memory=True)
+                                  pin_memory=True, generator=torch.Generator(device='cuda'))
     # create batch iterator
     batch_iterator = iter(data_loader)
     for iteration in range(args.start_iter, cfg['max_iter']):
