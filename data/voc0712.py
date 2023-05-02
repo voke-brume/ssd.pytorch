@@ -99,7 +99,7 @@ class VOCDetection(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.name = dataset_name
-        self._annopath = osp.join('%s', 'Annotations', '%s.xml')
+        self._annopath = osp.join('%s', 'Annotations/train', '%s.xml')
         self._imgpath = osp.join('%s', '/home/lab/Documents/roye_/cs_620_final_project/spark_dataset/train_all', '%s.png')
         self.ids = list()
         for (year, name) in image_sets:
