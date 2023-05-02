@@ -18,14 +18,10 @@ else:
     import xml.etree.ElementTree as ET
 
 VOC_CLASSES = (  # always index 0
-    'aeroplane', 'bicycle', 'bird', 'boat',
-    'bottle', 'bus', 'car', 'cat', 'chair',
-    'cow', 'diningtable', 'dog', 'horse',
-    'motorbike', 'person', 'pottedplant',
-    'sheep', 'sofa', 'train', 'tvmonitor')
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10')
 
 # note: if you used our download scripts, this should be right
-VOC_ROOT = osp.join(HOME, "data/VOCdevkit/")
+VOC_ROOT = osp.join(HOME, "VOCdevkit/")
 
 
 class VOCAnnotationTransform(object):
@@ -65,7 +61,7 @@ class VOCAnnotationTransform(object):
             pts = ['xmin', 'ymin', 'xmax', 'ymax']
             bndbox = []
             for i, pt in enumerate(pts):
-                cur_pt = int(bbox.find(pt).text) - 1
+                cur_pt = int(float(bbox.find(pt).text)*1024/300) - 1
                 # scale height or width
                 cur_pt = cur_pt / width if i % 2 == 0 else cur_pt / height
                 bndbox.append(cur_pt)
@@ -104,7 +100,7 @@ class VOCDetection(data.Dataset):
         self.target_transform = target_transform
         self.name = dataset_name
         self._annopath = osp.join('%s', 'Annotations', '%s.xml')
-        self._imgpath = osp.join('%s', 'JPEGImages', '%s.jpg')
+        self._imgpath = osp.join('%s', '/home/lab/Documents/roye_/cs_620_final_project/spark_dataset/train_all', '%s.png')
         self.ids = list()
         for (year, name) in image_sets:
             rootpath = self.root
@@ -122,16 +118,8 @@ class VOCDetection(data.Dataset):
     def pull_item(self, index):
         img_id = self.ids[index]
 
-        save = ""
-        with open(self._annopath % img_id, 'r')as content:
-            save=content.read()
-        with open(self._annopath % img_id, 'w')as content:
-            text = '<'+save
-            print(text)
-            #content.writelines(text)
-        print(self._annopath % img_id)
-        target = text
-        img = cv2.imread(self._imgpath % img_id)
+        target = ET.parse(self._annopath % img_id).getroot()
+        img = cv2.imread(self._imgpath % str(img_id[1]))
         height, width, channels = img.shape
 
         if self.target_transform is not None:

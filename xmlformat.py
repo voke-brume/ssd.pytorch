@@ -35,47 +35,57 @@ trainTransforms = transforms.Compose([transforms.ToPILImage(),resize,
             transforms.ToTensor()])
 class_map=[{'proba_2': 0,'cheops': 1,'debris':2,'double_star':3,'earth_observation_sat_1':4,'lisa_pathfinder':5,'proba_3_csc':6,'proba_3_ocs':7,'smart_1':8,'soho':9,'xmm_newton':10}]
 dataset=PyTorchSparkDataset(class_map,'train',"E:\\CPE 620 final\\data\\",transform=trainTransforms)
-labs=[0]*66000
-imgs=[0]*66000
+labs=[0]*33000
+imgs=[0]*33000
 for i in range(66000):
     torch_image,bbox,labels=dataset[i]
 
-
-    root = ET.Element('annotation')
-    ET.SubElement(root, 'folder').text = 'E:\\CPE 620 final\\data\\train_1' # set correct folder name
-    ET.SubElement(root, 'filename').text = str(os.path.splitext(os.path.basename(torch_image))[0][:]+'.png')
-
-    size = ET.SubElement(root, 'size')
-    ET.SubElement(size, 'width').text = str(300)
-    ET.SubElement(size, 'height').text = str(300)
-    ET.SubElement(size, 'depth').text = str(3)
-
-    ET.SubElement(root, 'segmented').text = '0'
-
-    obj = ET.SubElement(root, 'object')
-    ET.SubElement(obj, 'name').text = str(labels)
-    ET.SubElement(obj, 'pose').text = 'Unspecified'
-    ET.SubElement(obj, 'truncated').text = '0'
-    ET.SubElement(obj, 'occluded').text = '0'
-    ET.SubElement(obj, 'difficult').text = '0'
-
-    bx = ET.SubElement(obj, 'bndbox')
-    ET.SubElement(bx, 'xmin').text = str(bbox[1])
-    ET.SubElement(bx, 'ymin').text = str(bbox[0])
-    ET.SubElement(bx, 'xmax').text = str(bbox[3])
-    ET.SubElement(bx, 'ymax').text = str(bbox[2])
-
-
-    tree = ET.ElementTree(root)
-    
+    save = ""
     txt=os.path.splitext(os.path.basename(torch_image))[0][:]    
     txt=txt+'.xml'
-    print(txt)
-    xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent = "\t")
-    with open(os.path.join("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\Annotations\\",str(txt)), "w") as f:
-        f.write(xmlstr[1:])
-    # tree.write("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\Annotations\\"+str(txt))
-    print(i)
+    with open(os.path.join("VOCdevkit/SPARK", str(txt)), 'r')as content:
+        save=content.read()
+    with open(os.path.join("VOCdevkit/SPARK", str(txt)), 'w')as content:
+        text = '<'+save
+        print(text)
+        content.writelines(text)
+        content.close()
+
+    # root = ET.Element('annotation')
+    # ET.SubElement(root, 'folder').text = 'E:\\CPE 620 final\\data\\train_1' # set correct folder name
+    # ET.SubElement(root, 'filename').text = str(os.path.splitext(os.path.basename(torch_image))[0][:]+'.png')
+
+    # size = ET.SubElement(root, 'size')
+    # ET.SubElement(size, 'width').text = str(300)
+    # ET.SubElement(size, 'height').text = str(300)
+    # ET.SubElement(size, 'depth').text = str(3)
+
+    # ET.SubElement(root, 'segmented').text = '0'
+
+    # obj = ET.SubElement(root, 'object')
+    # ET.SubElement(obj, 'name').text = str(labels)
+    # ET.SubElement(obj, 'pose').text = 'Unspecified'
+    # ET.SubElement(obj, 'truncated').text = '0'
+    # ET.SubElement(obj, 'occluded').text = '0'
+    # ET.SubElement(obj, 'difficult').text = '0'
+
+    # bx = ET.SubElement(obj, 'bndbox')
+    # ET.SubElement(bx, 'xmin').text = str(bbox[1])
+    # ET.SubElement(bx, 'ymin').text = str(bbox[0])
+    # ET.SubElement(bx, 'xmax').text = str(bbox[3])
+    # ET.SubElement(bx, 'ymax').text = str(bbox[2])
+
+
+    # tree = ET.ElementTree(root)
+    
+    # txt=os.path.splitext(os.path.basename(torch_image))[0][:]    
+    # txt=txt+'.xml'
+    # print(txt)
+    # xmlstr = minidom.parseString(ET.tostring(root)).toprettyxml(indent = "\t")
+    # with open(os.path.join("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\Annotations\\",str(txt)), "w") as f:
+    #     f.write(xmlstr[1:])
+    # # tree.write("E:\\CPE 620 final\\data\\VOCdevkit\\SPARK\\Annotations\\"+str(txt))
+    # print(i)
 
 
     # labs[i]=labels
