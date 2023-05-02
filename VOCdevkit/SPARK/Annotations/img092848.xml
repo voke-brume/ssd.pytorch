@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<annotation>
+	<folder>E:\CPE 620 final\data\images\train_2</folder>
+	<filename>img092848.png</filename>
+	<size>
+		<width>300</width>
+		<height>300</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>9</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<occluded>0</occluded>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>0.0</xmin>
+			<ymin>193.65234375</ymin>
+			<xmax>115.13671875</xmax>
+			<ymax>286.5234375</ymax>
+		</bndbox>
+	</object>
+</annotation>
